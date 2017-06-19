@@ -74,9 +74,9 @@ game.newLoop('game',function() {
             }
 
             if (proto_c.isDynamicIntersect(food[b].getDynamicBox())) {
-                food.splice(b, 1);
                 if (proto_c.radius<255)
                     proto_c.scaleC(1+ food[b].radius*0.01/proto_c.radius);
+                food.splice(b, 1);
             }
 
             if (food.length < 1500)
