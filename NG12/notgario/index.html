@@ -15,6 +15,11 @@ var system = js.system;
 var log = system.log;
 system.initFullPage();
 
+var img = game.newImageObject(   { 
+     file : "pedobear_backgrounded.jpg", 
+     //scale : 0.5, // уменьшить картинку в 2 раза, если не заданы ширина и высота
+   });
+
 var random = js.math.random;
 var randomColor = js.colors.randomColor;
 
@@ -70,7 +75,10 @@ game.newLoop('game',function() {
 	if (proto_c.getPositionC().x + proto_c.radius  > map_size * part_size - 2) proto_c.x = map_size * part_size - proto_c.radius*2 - 2;
 	if (proto_c.getPositionC().y + proto_c.radius  > map_size * part_size - 2) proto_c.y = map_size * part_size - proto_c.radius*2 - 2;
 
-	if (mouse_control.isDown("LEFT")) proto_c.moveTimeC(mouse_control.getPosition(), 20);
+	if (mouse_control.isDown("LEFT")) {
+		proto_c.moveTimeC(mouse_control.getPosition(), 20);
+		proto_c.scaleC(0.99);
+	}
 
     for (var b in food){
         if (food[b].isInCamera()) {
@@ -90,6 +98,15 @@ game.newLoop('game',function() {
 		}
             }
 
+	if (food[b].isDynamicIntersect(proto_c.getDynamicBox())) {
+		if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
+			+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
+			< food[b].radius * food[b].radius){
+                food[b].scaleC(4+ proto_c.radius * 0.1);
+               	proto_c.radius = 0;
+		}
+            }
+
             if (food.length < 1500)
                 food.push(game.newCircleObject({
                     x: random(0, map_size * part_size - 16), y: random(0, map_size * part_size - 16),
@@ -99,6 +116,11 @@ game.newLoop('game',function() {
 
             food[b].draw();
         }
+	if ( proto_c.radius == 0){
+		game.stop();
+		img.setPositionC(proto_c.getPositionC());
+		img.draw();
+	}
     }
 
 
@@ -107,6 +129,10 @@ game.newLoop('game',function() {
 
 game.setLoop('game');
 game.start();
+
+//img.setPositionC( proto_c.getPositionC());
+//img.draw();
+
 </script>
 
 </body>
