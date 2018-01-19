@@ -169,12 +169,11 @@ game.newLoop('game',function() {
 	if ( proto_c.radius == 0){
 		img.setPositionC(proto_c.getPositionC());
 		img.draw();
-		game.stop();
 	}
 	
 
 });
-
+/*
 game.newLoop('Menu',function() {
 	if (mouse_control.isPress("RIGHT")) {
 		proto_c.radius = 15;
@@ -182,8 +181,8 @@ game.newLoop('Menu',function() {
 		game.start();
 	}
 }
-
-game.setLoop('Menu');
+*/
+game.setLoop('game');
 game.start();
 
 //img.setPositionC( proto_c.getPositionC());
