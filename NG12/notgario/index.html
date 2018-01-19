@@ -73,8 +73,8 @@ var portal_coord = [];
 	for (var i = 0; i < portal_count; i++) {
 		var good_loc = false;
 		while (!good_loc) {
-			x = random(100, map_size*part_size-100);
-			y = random(100, map_size*part_size-100);
+			x = random(200, map_size*part_size-200);
+			y = random(200, map_size*part_size-200);
 			good_loc = true;
 			for (var j = 0; j < i; j++)
 				if ((Math.abs(portal_coord[j].x  - x) + Math.abs(portal_coord[j].y - y)) < 1000)good_loc = false;
@@ -170,11 +170,20 @@ game.newLoop('game',function() {
 		img.setPositionC(proto_c.getPositionC());
 		img.draw();
 		game.stop();
-
 	}
+	
+
 });
 
-game.setLoop('game');
+game.newLoop('Menu',function() {
+	if (mouse_control.isPress("RIGHT")) {
+		proto_c.radius = 15;
+		game.setLoop('game');
+		game.start();
+	}
+}
+
+game.setLoop('Menu');
 game.start();
 
 //img.setPositionC( proto_c.getPositionC());
