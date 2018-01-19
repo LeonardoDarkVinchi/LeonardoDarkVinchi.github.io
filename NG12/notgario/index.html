@@ -31,7 +31,7 @@ var proto_c = game.newCircleObject({
     strokeColor: 'black', strokeWidth: 2
 });
 
-var map_size = 200, part_size = 30,
+var map_size = 100, part_size = 30,
     fon = [];
 {
     for (var x = 0; x < map_size; x++)
@@ -73,11 +73,13 @@ var portal_coord = [];
 	for (var i = 0; i < portal_count; i++) {
 		var good_loc = false;
 		while (!good_loc) {
-			x = random(0, map_size*part_size-16);
-			y = random(0, map_size*part_size-16);
+			x = random(100, map_size*part_size-100);
+			y = random(100, map_size*part_size-100);
 			good_loc = true;
-			for (var j = 0; j < i; j++) {}
-				if ((Math.abs(portal_coord[j].x  - x) + Math.abs(portal_coord[j].y - y)) < 1000) good_loc = false;
+			for (var j = 0; j < i; j++)
+				if ((Math.abs(portal_coord[j].x  - x) + Math.abs(portal_coord[j].y - y)) < 1000)good_loc = false;
+			portal_coord[i].x = x;
+			portal_coord[i].y = y;
 		}
 	}
 }
@@ -88,7 +90,8 @@ var portal = [];
         portal.push(game.newRectObject({
                  x: portal_coord[i].x, y: portal_coord[i].y,
                  w: 200, h: 10,
-                fillColor: '#FFF'
+                fillColor: '#3b1158',
+				angle: (random(0,2)*45)
         }))
 
 }
