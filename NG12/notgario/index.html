@@ -9,7 +9,7 @@
 <script type="text/javascript" src="point.js"></script>
 
 <script type="text/javascript">
-var js = new PointJS('2d', 1000 , 550, {backgroundColor: '#555'});
+var js = new PointJS( 1000 , 550, {backgroundColor : '#555'});
 var game = js.game;
 var system = js.system;
 var log = system.log;
@@ -106,7 +106,7 @@ game.newLoop('game',function() {
 
 ////////////////
     game.clear();
-	
+		
     for (var i in fon) {
         if (fon[i].isInCamera()) {
             fon[i].draw();
@@ -144,7 +144,7 @@ game.newLoop('game',function() {
 		if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
 			+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
 			< food[b].radius * food[b].radius){
-                food[b].scaleC(4+ proto_c.radius * 0.1);
+                food[b].scaleC(4 + proto_c.radius * 0.1);
                	proto_c.radius = 0;
 		}
             }
@@ -162,14 +162,30 @@ game.newLoop('game',function() {
 
 	proto_c.draw();
 
+	if ( proto_c.radius <= 0){
+		img.setPositionC(proto_c.getPositionC());
+		img.draw();
+		if (mouse_control.isPress("RIGHT")) {
+			proto_c.radius = 15;
+			proto_c.y = 0.1;
+			proto_c.x = 0.1;
+		}
+	}
+/*	
+	
+		system.log(proto_c.radius);
+		system.log(proto_c.x);
+		system.log(proto_c.y);
+		game.stop();
+	}	
+*/
 	for (var i in portal){
 		portal[i].draw();
 	}
-
-	if ( proto_c.radius == 0){
-		img.setPositionC(proto_c.getPositionC());
-		img.draw();
-	}
+	
+	system.log(proto_c.radius);
+	system.log(proto_c.x);
+	system.log(proto_c.y);
 	
 
 });
@@ -183,7 +199,7 @@ game.newLoop('Menu',function() {
 }
 */
 game.setLoop('game');
-game.start();
+game.start(60);
 
 //img.setPositionC( proto_c.getPositionC());
 //img.draw();
