@@ -1,0 +1,210 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title></title>
+</head>
+<body>
+
+<script type="text/javascript" src="point.js"></script>
+
+<script type="text/javascript">
+var js = new PointJS( 1000 , 550, {backgroundColor : '#555'});
+var game = js.game;
+var system = js.system;
+var log = system.log;
+system.initFullPage();
+
+var img = game.newImageObject(   { 
+     file : "pedobear_backgrounded.jpg", 
+     //scale : 0.5, // уменьшить картинку в 2 раза, если не заданы ширина и высота
+   });
+
+var random = js.math.random;
+var randomColor = js.colors.randomColor;
+
+var mouse_control = js.mouseControl;
+mouse_control.initMouseControl();
+
+var proto_c = game.newCircleObject({
+    radius: 15, fillColor: 'blue',
+    strokeColor: 'black', strokeWidth: 2
+});
+
+var map_size = 100, part_size = 30,
+    fon = [];
+{
+    for (var x = 0; x < map_size; x++)
+        for  (var y = 0; y < map_size; y++){
+            fon.push(game.newRectObject({
+                 x: x*part_size, y: y*part_size,
+                 w: part_size - 2, h: part_size - 2,
+                 fillColor: '#999'
+            }))
+        }
+}
+
+var food_count = 15 * map_size;
+var food = [];
+{
+    for (var x = 0; x < food_count; x++)
+        food.push(game.newCircleObject({
+            x: random(0, map_size*part_size-16), y: random(0, map_size*part_size-16),
+            radius: random(3, 8),
+            fillColor: randomColor(0, 255)
+        }))
+}
+
+var portal_count = 10;
+var portal_coord = [];
+{
+	for (var i = 0; i < portal_count; i++){
+		portal_coord[i]= {
+			x: 0,
+			y: 0
+		}
+	}
+}
+
+//function portal_spawn()
+{
+	var x = 0;
+	var y = 0;
+	for (var i = 0; i < portal_count; i++) {
+		var good_loc = false;
+		while (!good_loc) {
+			x = random(200, map_size*part_size-200);
+			y = random(200, map_size*part_size-200);
+			good_loc = true;
+			for (var j = 0; j < i; j++)
+				if ((Math.abs(portal_coord[j].x  - x) + Math.abs(portal_coord[j].y - y)) < 1000)good_loc = false;
+			portal_coord[i].x = x;
+			portal_coord[i].y = y;
+		}
+	}
+}
+/////
+var portal = [];
+{
+	for (var i = 0; i < portal_count; i++)
+        portal.push(game.newRectObject({
+                 x: portal_coord[i].x, y: portal_coord[i].y,
+                 w: 200, h: 10,
+                fillColor: '#3b1158',
+				angle: (random(0,2)*45)
+        }))
+
+}
+
+////////////////////////////////
+game.newLoop('game',function() {
+
+    proto_c.moveTimeC(mouse_control.getPosition(), proto_c.radius*2+20);
+
+    js.camera.setPositionC(proto_c.getPosition(1));
+
+
+////////////////
+    game.clear();
+		
+    for (var i in fon) {
+        if (fon[i].isInCamera()) {
+            fon[i].draw();
+        }
+    }
+	if (proto_c.getPositionC().x - proto_c.radius  < 0) proto_c.x = 0;
+	if (proto_c.getPositionC().y - proto_c.radius  < 0) proto_c.y = 0;
+	if (proto_c.getPositionC().x + proto_c.radius  > map_size * part_size - 2) proto_c.x = map_size * part_size - proto_c.radius*2 - 2;
+	if (proto_c.getPositionC().y + proto_c.radius  > map_size * part_size - 2) proto_c.y = map_size * part_size - proto_c.radius*2 - 2;
+
+	if (mouse_control.isDown("LEFT")) {
+		proto_c.moveTimeC(mouse_control.getPosition(), 20);
+		proto_c.scaleC(0.99);
+	}
+
+    for (var b in food){
+        if (food[b].isInCamera()) {
+            if (food[b].getDistanceC(proto_c.getPositionC()) < proto_c.radius*1.5 + 20) {
+                if (proto_c.radius > food[b].radius)
+                    food[b].moveTimeC(proto_c.getPosition(1), proto_c.radius*5 + 20);
+                else proto_c.moveTimeC(food[b].getPosition(1), food[b].radius*5 + 20);
+            }
+
+            if (proto_c.isDynamicIntersect(food[b].getDynamicBox())) {
+		if((proto_c.getPositionC().x-food[b].getPositionC().x) * (proto_c.getPositionC().x-food[b].getPositionC().x)
+			+ (proto_c.getPositionC().y-food[b].getPositionC().y) * (proto_c.getPositionC().y-food[b].getPositionC().y)
+			< proto_c.radius * proto_c.radius){
+                if (proto_c.radius<255)
+                    proto_c.scaleC(1+ food[b].radius*0.01/proto_c.radius);
+                food.splice(b, 1);
+		}
+            }
+
+	if (food[b].isDynamicIntersect(proto_c.getDynamicBox())) {
+		if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
+			+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
+			< food[b].radius * food[b].radius){
+                food[b].scaleC(4 + proto_c.radius * 0.1);
+               	proto_c.radius = 0;
+		}
+            }
+
+            if (food.length < 1500)
+                food.push(game.newCircleObject({
+                    x: random(0, map_size * part_size - 16), y: random(0, map_size * part_size - 16),
+                    radius: random(3, 10),
+                    fillColor: randomColor(0, 255)
+                }));
+
+            food[b].draw();
+        }
+    }
+
+	proto_c.draw();
+
+	if ( proto_c.radius <= 0){
+		img.setPositionC(proto_c.getPositionC());
+		img.draw();
+		if (mouse_control.isPress("MIDDLE")) {
+			proto_c.radius = 15;
+			proto_c.y = 0.1;
+			proto_c.x = 0.1;
+		}
+	}
+/*	
+	
+		system.log(proto_c.radius);
+		system.log(proto_c.x);
+		system.log(proto_c.y);
+		game.stop();
+	}	
+*/
+	for (var i in portal){
+		portal[i].draw();
+	}
+	
+	system.log(proto_c.radius);
+	system.log(proto_c.x);
+	system.log(proto_c.y);
+	
+
+});
+/*
+game.newLoop('Menu',function() {
+	if (mouse_control.isPress("RIGHT")) {
+		proto_c.radius = 15;
+		game.setLoop('game');
+		game.start();
+	}
+}
+*/
+game.setLoop('game');
+game.start(60);
+
+//img.setPositionC( proto_c.getPositionC());
+//img.draw();
+
+</script>
+
+</body>
+</html>
