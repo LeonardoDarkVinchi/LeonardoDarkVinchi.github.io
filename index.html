@@ -16,7 +16,7 @@ var log = system.log;
 system.initFullPage();
 
 var img = game.newImageObject(   { 
-     file : "pedobear_backgrounded.jpg", 
+     file : "pedobear_backgrounded.jpg" 
      //scale : 0.5, // уменьшить картинку в 2 раза, если не заданы ширина и высота
    });
 
@@ -25,11 +25,6 @@ var randomColor = js.colors.randomColor;
 
 var mouse_control = js.mouseControl;
 mouse_control.initMouseControl();
-
-var proto_c = game.newCircleObject({
-    radius: 15, fillColor: 'blue',
-    strokeColor: 'black', strokeWidth: 2
-});
 
 var map_size = 100, part_size = 30,
     fon = [];
@@ -43,6 +38,12 @@ var map_size = 100, part_size = 30,
             }))
         }
 }
+
+var proto_c = game.newCircleObject({
+    radius: 15, fillColor: 'blue',
+    strokeColor: 'black', strokeWidth: 2,
+	x: 0, y: 0
+});
 
 var food_count = 15 * map_size;
 var food = [];
@@ -68,8 +69,6 @@ var portal_coord = [];
 
 //function portal_spawn()
 {
-	var x = 0;
-	var y = 0;
 	for (var i = 0; i < portal_count; i++) {
 		var good_loc = false;
 		while (!good_loc) {
@@ -96,10 +95,11 @@ var portal = [];
 
 }
 
+var debug = false;
 ////////////////////////////////
 game.newLoop('game',function() {
 
-    proto_c.moveTimeC(mouse_control.getPosition(), proto_c.radius*2+20);
+    proto_c.moveTo(mouse_control.getPosition(), 10/(proto_c.radius+1)+5);
 
     js.camera.setPositionC(proto_c.getPosition(1));
 
@@ -112,13 +112,20 @@ game.newLoop('game',function() {
             fon[i].draw();
         }
     }
-	if (proto_c.getPositionC().x - proto_c.radius  < 0) proto_c.x = 0;
-	if (proto_c.getPositionC().y - proto_c.radius  < 0) proto_c.y = 0;
-	if (proto_c.getPositionC().x + proto_c.radius  > map_size * part_size - 2) proto_c.x = map_size * part_size - proto_c.radius*2 - 2;
-	if (proto_c.getPositionC().y + proto_c.radius  > map_size * part_size - 2) proto_c.y = map_size * part_size - proto_c.radius*2 - 2;
-
+	if (proto_c.x < 0) proto_c.x = 0;
+	if (proto_c.y < 0) proto_c.y = 0;
+	if (proto_c.x + proto_c.radius*2  > map_size * part_size - 2) proto_c.x = map_size * part_size - proto_c.radius*2 - 2;
+	if (proto_c.y + proto_c.radius*2  > map_size * part_size - 2) proto_c.y = map_size * part_size - proto_c.radius*2 - 2;
+	
+	if (debug) {
+		system.log(proto_c.getPositionC().x);
+		system.log(proto_c.getPositionC().y);
+		system.log(mouse_control.getPosition());
+		system.log(10/(proto_c.radius+1)+5);
+	}
+	
 	if (mouse_control.isDown("LEFT")) {
-		proto_c.moveTimeC(mouse_control.getPosition(), 20);
+		proto_c.moveTo(mouse_control.getPosition(), 15);
 		proto_c.scaleC(0.99);
 	}
 
@@ -131,30 +138,30 @@ game.newLoop('game',function() {
             }
 
             if (proto_c.isDynamicIntersect(food[b].getDynamicBox())) {
-		if((proto_c.getPositionC().x-food[b].getPositionC().x) * (proto_c.getPositionC().x-food[b].getPositionC().x)
-			+ (proto_c.getPositionC().y-food[b].getPositionC().y) * (proto_c.getPositionC().y-food[b].getPositionC().y)
-			< proto_c.radius * proto_c.radius){
-                if (proto_c.radius<255)
-                    proto_c.scaleC(1+ food[b].radius*0.01/proto_c.radius);
-                food.splice(b, 1);
-		}
+				if((proto_c.getPositionC().x-food[b].getPositionC().x) * (proto_c.getPositionC().x-food[b].getPositionC().x)
+				+ (proto_c.getPositionC().y-food[b].getPositionC().y) * (proto_c.getPositionC().y-food[b].getPositionC().y)
+				< proto_c.radius * proto_c.radius){
+					if (proto_c.radius<255)
+						proto_c.scaleC(1 + food[b].radius*0.01/proto_c.radius);
+					food.splice(b, 1);
+				}
             }
 
-	if (food[b].isDynamicIntersect(proto_c.getDynamicBox())) {
-		if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
-			+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
-			< food[b].radius * food[b].radius){
-                food[b].scaleC(4 + proto_c.radius * 0.1);
-               	proto_c.radius = 0;
-		}
-            }
+			if (food[b].isDynamicIntersect(proto_c.getDynamicBox())) {
+				if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
+				+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
+				< food[b].radius * food[b].radius){
+					food[b].scaleC(1 + proto_c.radius * 0.1);
+					proto_c.radius = 0;
+				}
+			}
 
-            if (food.length < 1500)
-                food.push(game.newCircleObject({
-                    x: random(0, map_size * part_size - 16), y: random(0, map_size * part_size - 16),
-                    radius: random(3, 10),
-                    fillColor: randomColor(0, 255)
-                }));
+			if (food.length < 1500)
+				food.push(game.newCircleObject({
+					x: random(0, map_size * part_size - 16), y: random(0, map_size * part_size - 16),
+					radius: random(3, 10),
+					fillColor: randomColor(0, 255)
+				}));
 
             food[b].draw();
         }
@@ -162,15 +169,7 @@ game.newLoop('game',function() {
 
 	proto_c.draw();
 
-	if ( proto_c.radius <= 0){
-		img.setPositionC(proto_c.getPositionC());
-		img.draw();
-		if (mouse_control.isPress("MIDDLE")) {
-			proto_c.radius = 15;
-			proto_c.y = 0.1;
-			proto_c.x = 0.1;
-		}
-	}
+	
 /*	
 	
 		system.log(proto_c.radius);
@@ -181,6 +180,19 @@ game.newLoop('game',function() {
 */
 	for (var i in portal){
 		portal[i].draw();
+	}
+	
+	if ( proto_c.radius == 0){
+		if (mouse_control.isPress("MIDDLE")) {
+			proto_c.radius = 15;
+			proto_c.y = 0;
+			proto_c.x = 0;
+			//debug = true
+			//game.setFPS(1);
+		}
+		img.setPositionC(proto_c.getPositionC());
+		img.draw();
+		
 	}
 	
 	system.log(proto_c.radius);
