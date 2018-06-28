@@ -117,13 +117,6 @@ game.newLoop('game',function() {
 	if (proto_c.x + proto_c.radius*2  > map_size * part_size - 2) proto_c.x = map_size * part_size - proto_c.radius*2 - 2;
 	if (proto_c.y + proto_c.radius*2  > map_size * part_size - 2) proto_c.y = map_size * part_size - proto_c.radius*2 - 2;
 	
-	if (debug) {
-		system.log(proto_c.getPositionC().x);
-		system.log(proto_c.getPositionC().y);
-		system.log(mouse_control.getPosition());
-		system.log(10/(proto_c.radius+1)+5);
-	}
-	
 	if (mouse_control.isDown("LEFT")) {
 		proto_c.moveTo(mouse_control.getPosition(), 15);
 		proto_c.scaleC(0.99);
@@ -136,26 +129,23 @@ game.newLoop('game',function() {
                     food[b].moveTimeC(proto_c.getPosition(1), proto_c.radius*5 + 20);
                 else proto_c.moveTimeC(food[b].getPosition(1), food[b].radius*5 + 20);
             }
-
-            if (proto_c.isDynamicIntersect(food[b].getDynamicBox())) {
-				if((proto_c.getPositionC().x-food[b].getPositionC().x) * (proto_c.getPositionC().x-food[b].getPositionC().x)
-				+ (proto_c.getPositionC().y-food[b].getPositionC().y) * (proto_c.getPositionC().y-food[b].getPositionC().y)
-				< proto_c.radius * proto_c.radius){
-					if (proto_c.radius<255)
-						proto_c.scaleC(1 + food[b].radius*0.01/proto_c.radius);
-					food.splice(b, 1);
-				}
-            }
-
-			if (food[b].isDynamicIntersect(proto_c.getDynamicBox())) {
-				if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
-				+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
-				< food[b].radius * food[b].radius){
+			
+			if((food[b].getPositionC().x-proto_c.getPositionC().x) * (food[b].getPositionC().x-proto_c.getPositionC().x)
+			+ (food[b].getPositionC().y-proto_c.getPositionC().y) * (food[b].getPositionC().y-proto_c.getPositionC().y)
+			< food[b].radius * food[b].radius){
+				if (food[b].radius<255)
 					food[b].scaleC(1 + proto_c.radius * 0.1);
-					proto_c.radius = 0;
-				}
+				proto_c.radius = 0;
 			}
-
+			
+			if((proto_c.getPositionC().x-food[b].getPositionC().x) * (proto_c.getPositionC().x-food[b].getPositionC().x)
+			+ (proto_c.getPositionC().y-food[b].getPositionC().y) * (proto_c.getPositionC().y-food[b].getPositionC().y)
+			< proto_c.radius * proto_c.radius){
+				if (proto_c.radius<255)
+					proto_c.scaleC(1 + food[b].radius*0.1/proto_c.radius);
+				food.splice(b, 1);
+			}
+			
 			if (food.length < 1500)
 				food.push(game.newCircleObject({
 					x: random(0, map_size * part_size - 16), y: random(0, map_size * part_size - 16),
@@ -164,12 +154,11 @@ game.newLoop('game',function() {
 				}));
 
             food[b].draw();
-        }
+		}
     }
 
 	proto_c.draw();
-
-	
+		
 /*	
 	
 		system.log(proto_c.radius);
@@ -194,27 +183,11 @@ game.newLoop('game',function() {
 		img.draw();
 		
 	}
-	
-	system.log(proto_c.radius);
-	system.log(proto_c.x);
-	system.log(proto_c.y);
-	
 
 });
-/*
-game.newLoop('Menu',function() {
-	if (mouse_control.isPress("RIGHT")) {
-		proto_c.radius = 15;
-		game.setLoop('game');
-		game.start();
-	}
-}
-*/
+
 game.setLoop('game');
 game.start(60);
-
-//img.setPositionC( proto_c.getPositionC());
-//img.draw();
 
 </script>
 
